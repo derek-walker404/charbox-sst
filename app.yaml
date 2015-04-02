@@ -1,0 +1,11 @@
+esConfigs:
+  - host: localhost
+    port: 9300
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 9000
+  adminConnectors:
+    - type: http
+      port: 9001

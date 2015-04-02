@@ -1,0 +1,108 @@
+{
+    "sstResults": {
+        "properties": {
+            "deviceId": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "deviceInfo": {
+                "properties": {
+                    "connection": {
+                        "properties": {
+                            "anonProxy": {
+                                "type": "boolean"
+                            },
+                            "conType": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "expectedSpeed": {
+                                "type": "double"
+                            },
+                            "ip": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "isp": {
+                                "type": "string"
+                            },
+                            "satelliteProvider": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "location": {
+                        "properties": {
+                            "city": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "continent": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "country": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "location": {
+                                "type": "geo_point"
+                            },
+                            "subdivision": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "timeZone": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "zip": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
+                    }
+                }
+            },
+            "deviceKey": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "downloadDuration": {
+                "type": "long"
+            },
+            "downloadSize": {
+                "type": "long"
+            },
+            "downloadSpeed": {
+                "type": "double"
+            },
+            "pingDuration": {
+                "type": "long"
+            },
+            "serverLocation": {
+                "properties": {
+                    "ip": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "location": {
+                        "type": "geo_point"
+                    }
+                }
+            },
+            "testStartTime": {
+                "type": "date"
+            },
+            "uploadDuration": {
+                "type": "long"
+            },
+            "uploadSize": {
+                "type": "long"
+            },
+            "uploadSpeed": {
+                "type": "double"
+            }
+        }
+    }
+}
