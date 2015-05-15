@@ -15,17 +15,6 @@
 			<version>${dropwizard.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.16.2</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>co.charbox</groupId>
-			<artifactId>core</artifactId>
-			<version>0.1.0</version>
-		</dependency>
-		<dependency>
 			<groupId>co.charbox</groupId>
 			<artifactId>domain</artifactId>
 			<version>0.1.0</version>
@@ -36,9 +25,14 @@
 			<version>0.1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
+			<groupId>com.tpofof</groupId>
+			<artifactId>tpofof-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>co.charbox</groupId>
+			<artifactId>core</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 	</dependencies>
 	<build>

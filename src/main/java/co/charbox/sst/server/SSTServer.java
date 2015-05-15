@@ -8,30 +8,35 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import co.charbox.core.utils.Config;
-import co.charbox.sst.server.results.ConsoleSSTResultsHandler;
-import co.charbox.sst.server.results.ElasticsearchSSTResultsHandler;
-import co.charbox.sst.server.results.SSTResultsHandler;
+import co.charbox.sst.server.results.SstResultsHandler;
 
-import com.google.common.collect.Lists;
+import com.tpofof.core.App;
+import com.tpofof.core.utils.Config;
 
-public class SSTServer implements Runnable {
+@Component
+@Scope(BeanDefinition.SCOPE_SINGLETON)
+public class SstServer implements Runnable {
 
-	private final ServerSocket sock;
+	private ServerSocket sock;
 	private final int initialSize;
 	private final int maxSize;
 	private final ThreadPoolExecutor es;
-	private final List<SSTResultsHandler> handlers;
+	private final List<SstResultsHandler> handlers;
 	private DateTime lastClientTime;
+	@Autowired SstChartbotApiClient charbotApiClient;
 	
-	public SSTServer(List<SSTResultsHandler> handlers) throws IOException {
-		Config config = Config.get();
-		sock = new ServerSocket(config.getInt("sst.socket.port"));
+	@Autowired
+	public SstServer(Config config, List<SstResultsHandler> resultsHandlerMasterList) throws IOException {
+		sock = new ServerSocket(config.getInt("sst.socket.port")); // TODO: move to bean configuration file
 		this.initialSize = config.getInt("sst.initialSize");
 		this.maxSize = config.getInt("sst.maxSize");
 		this.es = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.getInt("sst.executor.threadCount"));
-		this.handlers = handlers;
+		this.handlers = resultsHandlerMasterList;
 	}
 	
 	@Override
@@ -60,7 +65,13 @@ public class SSTServer implements Runnable {
 				System.out.println("Just connected to "
 		                  + client.getRemoteSocketAddress());
 				
-	            es.execute(new ServerTestRunner(client, initialSize, maxSize, handlers));
+	            es.execute(ServerTestRunner.builder()
+	            		.client(client)
+	            		.initialSize(initialSize)
+	            		.maxSize(maxSize)
+	            		.handlers(handlers)
+	            		.charbotApiClient(charbotApiClient)
+	            		.build());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -73,11 +84,6 @@ public class SSTServer implements Runnable {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		List<SSTResultsHandler> handlers = Lists.newArrayList();
-		
-		handlers.add(new ConsoleSSTResultsHandler());
-		handlers.add(new ElasticsearchSSTResultsHandler(null));
-		
-		new SSTServer(handlers).run();
+		App.getContext().getBean(SstServer.class).run();
 	}
 }

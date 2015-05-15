@@ -4,28 +4,33 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NonNull;
+
+import org.joda.time.DateTime;
+
 import co.charbox.core.utils.SpeedUtils;
-import co.charbox.domain.model.mm.SSTResults;
+import co.charbox.domain.model.MyLocation;
+import co.charbox.domain.model.SstResults;
+import co.charbox.domain.model.mm.ConnectionInfoModel;
+import co.charbox.domain.model.mm.MyCharboxConnection;
 import co.charbox.sst.SSTProperties;
-import co.charbox.sst.server.results.SSTResultsHandler;
+import co.charbox.sst.server.results.SstResultsHandler;
 import co.charbox.sst.utils.DataReceiver;
 import co.charbox.sst.utils.DataSender;
 import co.charbox.sst.utils.MyIOHAndler;
 
+@Builder
+@AllArgsConstructor
 public class ServerTestRunner implements Runnable {
 
-	private final Socket client;
-	private SSTResults results;
-	private final int initialSize;
-	private final int maxSize;
-	private final List<SSTResultsHandler> handlers;
-
-	public ServerTestRunner(Socket client, int initialSize, int maxSize, List<SSTResultsHandler> handlers) {
-		this.client = client;
-		this.initialSize = initialSize;
-		this.maxSize = maxSize;
-		this.handlers = handlers;
-	}
+	@NonNull private final Socket client;
+	@NonNull private Integer initialSize;
+	@NonNull private Integer maxSize;
+	@NonNull private List<SstResultsHandler> handlers;
+	@NonNull private SstChartbotApiClient charbotApiClient;
+	private SstResults results;
 
 	public void run() {
 		try {
@@ -38,24 +43,42 @@ public class ServerTestRunner implements Runnable {
 			
 			io.write("F");
 			
-			for (SSTResultsHandler handler : handlers) {
+			for (SstResultsHandler handler : handlers) {
 				handler.handle(results, client);
 			}
-			
 			io.close();
-			client.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (InvalidDeviceTokenException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	private void initResults(MyIOHAndler io) {
-		this.results = new SSTResults()
-			.setDeviceId(io.read())
-			.setDeviceKey(io.read())
-			.setTestStartTime(System.currentTimeMillis());
-//		System.out.println("Init Results...");
-//		System.out.println("\t" + results.getDeviceId() + "\t" + results.getDeviceKey());
+	private void initResults(MyIOHAndler io) throws InvalidDeviceTokenException {
+		String deviceId = io.read();
+		String deviceToken = io.read();
+		this.results = SstResults.builder()
+			.deviceId(deviceId)
+			.deviceToken(deviceToken)
+			.testStartTime(new DateTime())
+			.deviceInfo(ConnectionInfoModel.builder()
+					.connection(MyCharboxConnection.builder()
+							.ip(io.getRemoteIp())
+							.build())
+					.build())
+			.serverLocation(MyLocation.builder()
+					.ip("") // TODO
+					.build())
+			.build();
+		if (!charbotApiClient.validateDeviceToken(deviceId, deviceToken, "sst")) {
+			throw new InvalidDeviceTokenException(deviceId, deviceToken, "sst");
+		}
 	}
 	
 	private void calculateDownloadSpeed(MyIOHAndler io) throws IOException {
@@ -82,9 +105,8 @@ public class ServerTestRunner implements Runnable {
 		io.write("D");
 		io.write(size);
 		new DataSender(io, SSTProperties.getDefaultDataChunk(), size).run();
-		this.results.setDownloadDuration(io.readInt())
-			.setDownloadSpeed(SpeedUtils.calcSpeed(results.getDownloadDuration(), size));
-//		System.out.println("\t" + this.results);
+		this.results.setDownloadDuration(io.readInt());
+		this.results.setDownloadSpeed(SpeedUtils.calcSpeed(results.getDownloadDuration(), size));
 	}
 	
 	private void calculateUploadSpeed(MyIOHAndler io) throws IOException {
@@ -112,8 +134,8 @@ public class ServerTestRunner implements Runnable {
 		io.write(size);
 		DataReceiver dr = new DataReceiver(io, size);
 		dr.run();
-		this.results.setUploadDuration(dr.getDuration())
-			.setUploadSpeed(SpeedUtils.calcSpeed(results.getUploadDuration(), size));
+		this.results.setUploadDuration(dr.getDuration());
+		this.results.setUploadSpeed(SpeedUtils.calcSpeed(results.getUploadDuration(), size));
 //		System.out.println("\t" + this.results);
 	}
 	

@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import co.charbox.core.utils.Config;
-import co.charbox.core.utils.HttpClientProvider;
-import co.charbox.core.utils.JsonUtils;
 import co.charbox.domain.model.MyLocation;
 import co.charbox.domain.model.mm.ConnectionInfoModel;
 import co.charbox.domain.model.mm.MyCharboxLocation;
@@ -15,25 +16,36 @@ import co.charbox.domain.model.mm.MyCharboxLocation;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.maxmind.geoip2.exception.HttpException;
+import com.tpofof.core.utils.Config;
+import com.tpofof.core.utils.HttpClientProvider;
+import com.tpofof.core.utils.json.JsonUtils;
 
+@Component
+@Scope(BeanDefinition.SCOPE_SINGLETON)
 public final class MaxMindConnectionDataProvider {
 
-	private static final String maxMindUrl = Config.get().getString("mm.server.url") + "mm/";
-	private static final Cache<String, ConnectionInfoModel> cache = CacheBuilder.newBuilder()
-						.expireAfterAccess(3, TimeUnit.MINUTES)
-						.expireAfterWrite(30, TimeUnit.MINUTES)
-						.recordStats()
-						.build();
+	@Autowired private HttpClientProvider httpClientProvider;
+	@Autowired private JsonUtils json;
+	private String maxMindUrl;
+	private Cache<String, ConnectionInfoModel> cache;
 	
-	private MaxMindConnectionDataProvider() { }
+	@Autowired
+	public MaxMindConnectionDataProvider(Config config) {
+		maxMindUrl = config.getString("mm.server.url") + "mm/";
+		cache = CacheBuilder.newBuilder()
+							.expireAfterAccess(3, TimeUnit.MINUTES)
+							.expireAfterWrite(30, TimeUnit.MINUTES)
+							.recordStats()
+							.build();
+	}
 	
-	public static ConnectionInfoModel getConnectionInfo(String ip) {
+	public ConnectionInfoModel getConnectionInfo(String ip) {
 		ConnectionInfoModel info = cache.getIfPresent(ip);
 		if (info == null) {
 			try {
 				GetMethod gm = new GetMethod(maxMindUrl + ip);
-				if (HttpClientProvider.get().executeMethod(gm) == 200) {
-					info = JsonUtils.fromJsonResponse(gm.getResponseBodyAsString(), ConnectionInfoModel.class);
+				if (httpClientProvider.get().executeMethod(gm) == 200) {
+					info = json.fromJsonResponse(gm.getResponseBodyAsString(), ConnectionInfoModel.class);
 					cache.put(ip, info);
 				}
 				gm.releaseConnection();
@@ -46,13 +58,14 @@ public final class MaxMindConnectionDataProvider {
 		return info;
 	}
 
-	public static MyLocation getCurrentServerLocation() {
+	public MyLocation getCurrentServerLocation() {
 		ConnectionInfoModel info = getConnectionInfo("self");
 		if (info != null) {
 			MyCharboxLocation loc = info.getLocation();
-			return new MyLocation()
-				.setIp(info.getConnection().getIp())
-				.setLocation(loc.getLocation());
+			return MyLocation.builder()
+					.ip(info.getConnection().getIp())
+					.location(loc.getLocation())
+					.build();
 		}
 		return null;
 	}

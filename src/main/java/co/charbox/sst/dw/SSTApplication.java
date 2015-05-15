@@ -4,23 +4,27 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import co.charbox.sst.server.SstServer;
 
-import co.charbox.sst.data.es.SSTResultElasticsearchDAO;
-import co.charbox.sst.server.SSTServer;
-import co.charbox.sst.server.results.ConsoleSSTResultsHandler;
-import co.charbox.sst.server.results.ElasticsearchSSTResultsHandler;
-import co.charbox.sst.server.results.SSTResultsHandler;
+import com.tpofof.core.App;
 
-import com.google.common.collect.Lists;
+@Component
+@Scope(BeanDefinition.SCOPE_SINGLETON)
+public class SstApplication extends Application<SstConfiguration> {
 
-public class SSTApplication extends Application<SSTConfiguration> {
-
+	@Autowired private SstServer sstServer;
+	
+	@Autowired private ConfigResource configResource;
+	
+	@Autowired private SstQueueSizeHealthCheck sstQueueHealthcheck;
+	
 	public static void main(String[] args) throws Exception {
-		new SSTApplication().run(args);
+		App.getContext().getBean(SstApplication.class).run(args);
 	}
 	
 	@Override
@@ -29,35 +33,18 @@ public class SSTApplication extends Application<SSTConfiguration> {
 	}
 	
 	@Override
-	public void initialize(Bootstrap<SSTConfiguration> bootstrap) {
+	public void initialize(Bootstrap<SstConfiguration> bootstrap) {
 		
 	}
 	
 	@Override
-	public void run(SSTConfiguration configuration, Environment environment) throws Exception {
-		/** DATA */
-		/* ELASTICSEARCH */
-		List<ElasticsearchConfiguration> esConfigs = configuration.getEsConfigs();
-		TransportClient esClient = new TransportClient();
-		for (ElasticsearchConfiguration c : esConfigs) {
-        	esClient.addTransportAddress(new InetSocketTransportAddress(c.getHost(), c.getPort()));
-		}
-		/* ES DAO */
-		final SSTResultElasticsearchDAO resultsDao = new SSTResultElasticsearchDAO(esClient);
-		
-		/** SPEED TEST SERVER */
-		final List<SSTResultsHandler> handlers = Lists.newArrayList();
-		handlers.add(new ConsoleSSTResultsHandler());
-		handlers.add(new ElasticsearchSSTResultsHandler(resultsDao));
-		final SSTServer sst = new SSTServer(handlers);
-		new Thread(sst).start();
+	public void run(SstConfiguration configuration, Environment environment) throws Exception {
+		new Thread(sstServer).start();
 
-		/** SST DROP WIZARD APP */
 		/* RESOURCES */
-		final ConfigResource configResource = new ConfigResource();
 		environment.jersey().register(configResource);
+		
 		/* HEALTH CHECKS */
-		final SSTQueueSizeHealthCheck queueHealthCheck = new SSTQueueSizeHealthCheck(sst);
-		environment.healthChecks().register("sst-queue-size", queueHealthCheck);
+		environment.healthChecks().register("sst-queue-size", sstQueueHealthcheck);
 	}
 }

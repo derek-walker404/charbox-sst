@@ -1,7 +1,3 @@
-esConfigs:
-  - host: localhost
-    port: 9300
-
 server:
   applicationConnectors:
     - type: http

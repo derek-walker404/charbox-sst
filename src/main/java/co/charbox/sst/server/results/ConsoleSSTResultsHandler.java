@@ -2,13 +2,23 @@ package co.charbox.sst.server.results;
 
 import java.net.Socket;
 
-import co.charbox.core.utils.JsonUtils;
-import co.charbox.domain.model.mm.SSTResults;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-public class ConsoleSSTResultsHandler implements SSTResultsHandler {
+import co.charbox.domain.model.SstResults;
 
-	public boolean handle(SSTResults results, Socket client) {
-		System.out.println(JsonUtils.toJson(results));
+import com.tpofof.core.utils.json.JsonUtils;
+
+@Component
+@Scope(BeanDefinition.SCOPE_SINGLETON)
+public class ConsoleSstResultsHandler implements SstResultsHandler {
+
+	@Autowired private JsonUtils json;
+	
+	public boolean handle(SstResults results, Socket client) {
+		System.out.println(json.toJson(results));
 		System.out.println("\t" + client.getRemoteSocketAddress().toString() + ":" + client.getPort());
 		return true;
 	}

@@ -2,9 +2,9 @@ package co.charbox.sst.server.results;
 
 import java.net.Socket;
 
-import co.charbox.domain.model.mm.SSTResults;
+import co.charbox.domain.model.SstResults;
 
-public interface SSTResultsHandler {
+public interface SstResultsHandler {
 
-	public boolean handle(SSTResults results, Socket client);
+	public boolean handle(SstResults results, Socket client);
 }
