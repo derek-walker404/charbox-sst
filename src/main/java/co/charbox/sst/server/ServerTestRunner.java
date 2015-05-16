@@ -76,6 +76,11 @@ public class ServerTestRunner implements Runnable {
 					.ip("") // TODO
 					.build())
 			.build();
+		try {
+			Thread.sleep(500); // Sleep to allow token to appear in ES
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if (!charbotApiClient.validateDeviceToken(deviceId, deviceToken, "sst")) {
 			throw new InvalidDeviceTokenException(deviceId, deviceToken, "sst");
 		}

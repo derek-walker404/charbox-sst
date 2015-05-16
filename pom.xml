@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>co.charbox</groupId>
-			<artifactId>sst-client</artifactId>
+			<artifactId>charbox-client</artifactId>
 			<version>0.1.0</version>
 		</dependency>
 		<dependency>
