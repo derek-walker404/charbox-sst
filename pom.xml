@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>co.charbox</groupId>
 	<artifactId>sst</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>Charbox - SST</name>
 	<properties>
 		<dropwizard.version>0.8.0</dropwizard.version>
@@ -17,12 +17,12 @@
 		<dependency>
 			<groupId>co.charbox</groupId>
 			<artifactId>domain</artifactId>
-			<version>0.1.0</version>
+			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>co.charbox</groupId>
 			<artifactId>charbox-client</artifactId>
-			<version>0.1.0</version>
+			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.tpofof</groupId>
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>co.charbox</groupId>
 			<artifactId>core</artifactId>
-			<version>0.1.0</version>
+			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>
