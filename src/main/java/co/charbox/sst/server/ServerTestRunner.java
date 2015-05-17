@@ -10,16 +10,16 @@ import lombok.NonNull;
 
 import org.joda.time.DateTime;
 
+import co.charbox.client.sst.SSTProperties;
+import co.charbox.client.sst.utils.DataReceiver;
+import co.charbox.client.sst.utils.DataSender;
+import co.charbox.client.sst.utils.MyIOHAndler;
 import co.charbox.core.utils.SpeedUtils;
 import co.charbox.domain.model.MyLocation;
 import co.charbox.domain.model.SstResults;
 import co.charbox.domain.model.mm.ConnectionInfoModel;
 import co.charbox.domain.model.mm.MyCharboxConnection;
-import co.charbox.sst.SSTProperties;
 import co.charbox.sst.server.results.SstResultsHandler;
-import co.charbox.sst.utils.DataReceiver;
-import co.charbox.sst.utils.DataSender;
-import co.charbox.sst.utils.MyIOHAndler;
 
 @Builder
 @AllArgsConstructor
@@ -81,7 +81,7 @@ public class ServerTestRunner implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		if (!charbotApiClient.validateDeviceToken(deviceId, deviceToken, "sst")) {
+		if (!charbotApiClient.validateDeviceToken(deviceId, deviceToken, "sst", 5)) {
 			throw new InvalidDeviceTokenException(deviceId, deviceToken, "sst");
 		}
 	}
