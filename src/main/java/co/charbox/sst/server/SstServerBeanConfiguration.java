@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import co.charbox.client.sst.results.ConsoleSstResultsHandler;
+import co.charbox.client.sst.results.SstResultsHandler;
 import co.charbox.sst.server.results.CharbotDataApiSstResultsHandler;
-import co.charbox.sst.server.results.ConsoleSstResultsHandler;
-import co.charbox.sst.server.results.SstResultsHandler;
 
 @Configuration
 public class SstServerBeanConfiguration {

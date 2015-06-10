@@ -7,24 +7,27 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import co.charbox.sst.server.results.SstResultsHandler;
+import co.charbox.client.sst.results.SstResultsHandler;
 
 import com.tpofof.core.App;
 import com.tpofof.core.utils.Config;
 
+@Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 public class SstServer implements Runnable {
 
 	private ServerSocket sock;
 	private final int initialSize;
-	private final int maxSize;
+	private final int minSendTime;
 	private final ThreadPoolExecutor es;
 	private final List<SstResultsHandler> handlers;
 	private DateTime lastClientTime;
@@ -33,15 +36,15 @@ public class SstServer implements Runnable {
 	@Autowired
 	public SstServer(Config config, List<SstResultsHandler> resultsHandlerMasterList) throws IOException {
 		sock = new ServerSocket(config.getInt("sst.socket.port")); // TODO: move to bean configuration file
-		this.initialSize = config.getInt("sst.initialSize");
-		this.maxSize = config.getInt("sst.maxSize");
+		this.initialSize = config.getInt("sst.initialSize", 6000);
+		this.minSendTime = config.getInt("sst.minSendTime", 3000);
 		this.es = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.getInt("sst.executor.threadCount"));
 		this.handlers = resultsHandlerMasterList;
 	}
 	
 	@Override
 	public String toString() {
-		return "SSTServer [intialSize=" + initialSize + ", maxSize=" + maxSize
+		return "SSTServer [intialSize=" + initialSize + ", minSendTime=" + minSendTime
 				+ "]";
 	}
 	
@@ -62,13 +65,13 @@ public class SstServer implements Runnable {
 			try {
 				Socket client = sock.accept();
 				lastClientTime = new DateTime();
-				System.out.println("Just connected to "
+				log.debug("Just connected to "
 		                  + client.getRemoteSocketAddress());
 				
 	            es.execute(ServerTestRunner.builder()
 	            		.client(client)
 	            		.initialSize(initialSize)
-	            		.maxSize(maxSize)
+	            		.minSendTime(minSendTime)
 	            		.handlers(handlers)
 	            		.charbotApiClient(charbotApiClient)
 	            		.build());

@@ -3,13 +3,13 @@ package co.charbox.sst.server;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,11 +21,10 @@ import com.tpofof.core.utils.Config;
 import com.tpofof.core.utils.HttpClientProvider;
 import com.tpofof.core.utils.json.JsonUtils;
 
+@Slf4j
 @Component
 public class SstChartbotApiClient {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SstChartbotApiClient.class);
-
 	@Autowired private Config config;
 	@Autowired private HttpClientProvider httpClientProvider;
 	@Autowired private Base64 base64;
@@ -41,7 +40,7 @@ public class SstChartbotApiClient {
 		try {
 			boolean success = 200 == httpClientProvider.get().executeMethod(get);
 			if (!success) {
-				LOGGER.error(get.getResponseBodyAsString());
+				log.error(get.getResponseBodyAsString());
 			}
 			return success;
 		} catch (HttpException e) {
@@ -91,7 +90,7 @@ public class SstChartbotApiClient {
 		try {
 			boolean success = 200 == httpClientProvider.get().executeMethod(post);
 			if (!success) {
-				LOGGER.error(post.getResponseBodyAsString());
+				log.error(post.getResponseBodyAsString());
 			}
 			return success;
 		} catch (HttpException e) {
