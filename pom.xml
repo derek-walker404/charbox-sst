@@ -6,7 +6,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<name>Charbox - SST</name>
 	<properties>
-		<dropwizard.version>0.8.0</dropwizard.version>
+		<dropwizard.version>0.7.1</dropwizard.version>
 	</properties>
 	<dependencies>
 		<dependency>
