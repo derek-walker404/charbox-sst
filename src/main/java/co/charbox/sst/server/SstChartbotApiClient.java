@@ -3,8 +3,6 @@ package co.charbox.sst.server;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -21,7 +19,6 @@ import com.tpofof.core.utils.Config;
 import com.tpofof.core.utils.HttpClientProvider;
 import com.tpofof.core.utils.json.JsonUtils;
 
-@Slf4j
 @Component
 public class SstChartbotApiClient {
 	
@@ -40,7 +37,7 @@ public class SstChartbotApiClient {
 		try {
 			boolean success = 200 == httpClientProvider.get().executeMethod(get);
 			if (!success) {
-				log.error(get.getResponseBodyAsString());
+				System.out.println(get.getResponseBodyAsString());
 			}
 			return success;
 		} catch (HttpException e) {
@@ -90,7 +87,7 @@ public class SstChartbotApiClient {
 		try {
 			boolean success = 200 == httpClientProvider.get().executeMethod(post);
 			if (!success) {
-				log.error(post.getResponseBodyAsString());
+				System.out.println(post.getResponseBodyAsString());
 			}
 			return success;
 		} catch (HttpException e) {
