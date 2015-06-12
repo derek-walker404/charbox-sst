@@ -65,7 +65,7 @@ public class SstServer implements Runnable {
 			try {
 				Socket client = sock.accept();
 				lastClientTime = new DateTime();
-				log.debug("Just connected to "
+				System.out.println("Just connected to "
 		                  + client.getRemoteSocketAddress());
 				
 	            es.execute(ServerTestRunner.builder()
