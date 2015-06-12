@@ -7,7 +7,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 import org.joda.time.DateTime;
 
@@ -23,7 +22,6 @@ import co.charbox.domain.model.SstResults;
 import co.charbox.domain.model.mm.ConnectionInfoModel;
 import co.charbox.domain.model.mm.MyCharboxConnection;
 
-@Slf4j
 @Builder
 @AllArgsConstructor
 public class ServerTestRunner implements Runnable {
@@ -66,9 +64,9 @@ public class ServerTestRunner implements Runnable {
 	private void initResults(MyIOHAndler io) throws InvalidDeviceTokenException {
 		String[] deviceVals = io.read(true).split(":");
 		String deviceId = deviceVals[0];
-		log.debug("Read deviceId " + deviceId);
+		System.out.println("Read deviceId " + deviceId);
 		String deviceToken = deviceVals[1];
-		log.debug("Read deviceToken " + deviceToken);
+		System.out.println("Read deviceToken " + deviceToken);
 		this.results = SstResults.builder()
 			.deviceId(deviceId)
 			.deviceToken(deviceToken)
@@ -113,11 +111,11 @@ public class ServerTestRunner implements Runnable {
 				currSize *= 2;
 			}
 		}
-		log.debug("Total Download: " + totalDownloadSize/1024/1024 + "Mbs");
+		System.out.println("Total Download: " + totalDownloadSize/1024/1024 + "Mbs");
 	}
 	
 	private void executeDownloadTest(long size, MyIOHAndler io) throws IOException {
-		log.trace("Download Test...");
+		System.out.println("Download Test...");
 		this.results.setDownloadSize(size);
 		io.write("D", true);
 		io.write(size, true);
@@ -147,11 +145,11 @@ public class ServerTestRunner implements Runnable {
 				currSize *= 2;
 			}
 		}
-		log.debug("Total Upload: " + totalUploadSize/1024/1024 + "Mb");
+		System.out.println("Total Upload: " + totalUploadSize/1024/1024 + "Mb");
 	}
 	
 	private void executeUploadTest(long size, MyIOHAndler io) throws IOException {
-		log.trace("Upload Test...");
+		System.out.println("Upload Test...");
 		this.results.setUploadSize(size);
 		io.write("U", true);
 		io.write(size, true);
@@ -169,7 +167,7 @@ public class ServerTestRunner implements Runnable {
 	}
 	
 	private void executePingTest(MyIOHAndler io) throws IOException {
-		log.trace("Ping Test...");
+		System.out.println("Ping Test...");
 		io.write("P", true);
 		io.write(io.read(false), false);
 		this.results.setPingDuration(io.readInt(true));
