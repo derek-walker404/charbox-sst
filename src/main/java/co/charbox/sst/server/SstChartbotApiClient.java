@@ -3,6 +3,8 @@ package co.charbox.sst.server;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -13,12 +15,12 @@ import org.springframework.stereotype.Component;
 
 import co.charbox.domain.model.SstResults;
 
-import com.tpofof.core.App;
 import com.tpofof.core.utils.AuthorizationHeader;
 import com.tpofof.core.utils.Config;
 import com.tpofof.core.utils.HttpClientProvider;
 import com.tpofof.core.utils.json.JsonUtils;
 
+@Slf4j
 @Component
 public class SstChartbotApiClient {
 	
@@ -37,7 +39,7 @@ public class SstChartbotApiClient {
 		try {
 			boolean success = 200 == httpClientProvider.get().executeMethod(get);
 			if (!success) {
-				System.out.println(get.getResponseBodyAsString());
+				log.error(get.getResponseBodyAsString());
 			}
 			return success;
 		} catch (HttpException e) {
@@ -82,12 +84,12 @@ public class SstChartbotApiClient {
 			e1.printStackTrace();
 		}
 		String username = serviceId + "@sst";
-		System.out.println(username + ":" + serviceApiKey);
+		log.debug(username + ":" + serviceApiKey);
 		post.addRequestHeader(new AuthorizationHeader(username, serviceApiKey));
 		try {
 			boolean success = 200 == httpClientProvider.get().executeMethod(post);
 			if (!success) {
-				System.out.println(post.getResponseBodyAsString());
+				log.error(post.getResponseBodyAsString());
 			}
 			return success;
 		} catch (HttpException e) {
@@ -96,13 +98,5 @@ public class SstChartbotApiClient {
 			e.printStackTrace();
 		}
 		return false;
-	}
-	
-	public static void main(String[] args) {
-		String deviceId = "test-dev";
-		String deviceToken = "b8f2191d-22a8-49ae-ab0e-5861d99138e3";
-		String serviceId = "sst";
-		SstChartbotApiClient client = App.getContext().getBean(SstChartbotApiClient.class);
-		System.out.println(client.validateDeviceToken(deviceId, deviceToken, serviceId));
 	}
 }

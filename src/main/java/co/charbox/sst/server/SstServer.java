@@ -3,9 +3,15 @@ package co.charbox.sst.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +23,8 @@ import org.springframework.stereotype.Component;
 
 import co.charbox.client.sst.results.SstResultsHandler;
 
+import com.google.api.client.util.Lists;
+import com.google.api.client.util.Maps;
 import com.tpofof.core.App;
 import com.tpofof.core.utils.Config;
 
@@ -28,8 +36,10 @@ public class SstServer implements Runnable {
 	private ServerSocket sock;
 	private final int initialSize;
 	private final int minSendTime;
-	private final ThreadPoolExecutor es;
+	private final int maxExecutionTime;
+	private final ThreadPoolExecutor testExecutorPool;
 	private final List<SstResultsHandler> handlers;
+	private final Map<ServerTestRunner, Future<?>> runnerMap;
 	private DateTime lastClientTime;
 	@Autowired SstChartbotApiClient charbotApiClient;
 	
@@ -38,7 +48,9 @@ public class SstServer implements Runnable {
 		sock = new ServerSocket(config.getInt("sst.socket.port")); // TODO: move to bean configuration file
 		this.initialSize = config.getInt("sst.initialSize", 6000);
 		this.minSendTime = config.getInt("sst.minSendTime", 3000);
-		this.es = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.getInt("sst.executor.threadCount"));
+		this.maxExecutionTime = config.getInt("sst.maxExecutionTime", 40*1000);
+		this.testExecutorPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.getInt("sst.executor.threadCount"));
+		this.runnerMap = Maps.newHashMap();
 		this.handlers = resultsHandlerMasterList;
 	}
 	
@@ -53,28 +65,59 @@ public class SstServer implements Runnable {
 	}
 	
 	public int getActiveTests() {
-		return es.getActiveCount();
+		return testExecutorPool.getActiveCount();
 	}
 	
 	public int getQueueSize() {
-		return es.getQueue().size();
+		return testExecutorPool.getQueue().size();
 	}
 
 	public void run() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Queue<ServerTestRunner> toDelete = new LinkedList<ServerTestRunner>();
+				while (true) {
+					DateTime currTime = new DateTime();
+					for (Entry<ServerTestRunner, Future<?>> e : runnerMap.entrySet()) {
+						ServerTestRunner runner = e.getKey();
+						if (!runner.isRunning() || (runner.getExpiration() != null && currTime.compareTo(runner.getExpiration()) >= 0)) {
+							if (runner.isRunning()) {
+								log.warn("Speed test timeout!");
+								try {
+									runner.getSocket().close();
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+							}
+							e.getValue().cancel(true);
+							toDelete.add(runner);
+						}
+					}
+					while (!toDelete.isEmpty()) {
+						runnerMap.remove(toDelete.poll());
+					}
+				}
+			}
+		}).start();
 		while (true) {
 			try {
 				Socket client = sock.accept();
 				lastClientTime = new DateTime();
-				System.out.println("Just connected to "
+				log.debug("Just connected to "
 		                  + client.getRemoteSocketAddress());
 				
-	            es.execute(ServerTestRunner.builder()
-	            		.client(client)
-	            		.initialSize(initialSize)
-	            		.minSendTime(minSendTime)
-	            		.handlers(handlers)
-	            		.charbotApiClient(charbotApiClient)
-	            		.build());
+				ServerTestRunner runner = ServerTestRunner.builder()
+		        		.client(client)
+		        		.initialSize(initialSize)
+		        		.minSendTime(minSendTime)
+		        		.maxExecutionTime(maxExecutionTime)
+		        		.running(new AtomicBoolean(true))
+		        		.handlers(handlers)
+		        		.charbotApiClient(charbotApiClient)
+		        		.build();
+	            Future<?> future = testExecutorPool.submit(runner);
+	            runnerMap.put(runner, future);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

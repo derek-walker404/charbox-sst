@@ -3,10 +3,12 @@ package co.charbox.sst.server;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import org.joda.time.DateTime;
 
@@ -22,6 +24,7 @@ import co.charbox.domain.model.SstResults;
 import co.charbox.domain.model.mm.ConnectionInfoModel;
 import co.charbox.domain.model.mm.MyCharboxConnection;
 
+@Slf4j
 @Builder
 @AllArgsConstructor
 public class ServerTestRunner implements Runnable {
@@ -29,11 +32,27 @@ public class ServerTestRunner implements Runnable {
 	@NonNull private final Socket client;
 	@NonNull private Integer initialSize;
 	@NonNull private Integer minSendTime;
+	@NonNull private Integer maxExecutionTime;
 	@NonNull private List<SstResultsHandler> handlers;
 	private SstChartbotApiClient charbotApiClient;
 	private SstResults results;
+	private DateTime expirationDate;
+	private AtomicBoolean running = new AtomicBoolean(true);
+	
+	public DateTime getExpiration() {
+		return expirationDate;
+	}
+	
+	public boolean isRunning() {
+		return running.get();
+	}
+	
+	public Socket getSocket() {
+		return client;
+	}
 
 	public void run() {
+		expirationDate = new DateTime().plusMillis(maxExecutionTime);
 		try {
 			MyIOHAndler io = new MyIOHAndler(client, 4096);
 			initResults(io);
@@ -59,14 +78,15 @@ public class ServerTestRunner implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		running.set(false);
 	}
 
 	private void initResults(MyIOHAndler io) throws InvalidDeviceTokenException {
 		String[] deviceVals = io.read(true).split(":");
 		String deviceId = deviceVals[0];
-		System.out.println("Read deviceId " + deviceId);
+		log.debug("Read deviceId " + deviceId);
 		String deviceToken = deviceVals[1];
-		System.out.println("Read deviceToken " + deviceToken);
+		log.debug("Read deviceToken " + deviceToken);
 		this.results = SstResults.builder()
 			.deviceId(deviceId)
 			.deviceToken(deviceToken)
@@ -86,6 +106,12 @@ public class ServerTestRunner implements Runnable {
 			e.printStackTrace();
 		}
 		if (!charbotApiClient.validateDeviceToken(deviceId, deviceToken, "sst", 5)) {
+			log.error("Invalid token, closing socket...");
+			try {
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			throw new InvalidDeviceTokenException(deviceId, deviceToken, "sst");
 		}
 	}
@@ -111,11 +137,11 @@ public class ServerTestRunner implements Runnable {
 				currSize *= 2;
 			}
 		}
-		System.out.println("Total Download: " + totalDownloadSize/1024/1024 + "Mbs");
+		log.debug("Total Download: " + totalDownloadSize/1024/1024 + "Mbs");
 	}
 	
 	private void executeDownloadTest(long size, MyIOHAndler io) throws IOException {
-		System.out.println("Download Test...");
+		log.trace("Download Test...");
 		this.results.setDownloadSize(size);
 		io.write("D", true);
 		io.write(size, true);
@@ -145,11 +171,11 @@ public class ServerTestRunner implements Runnable {
 				currSize *= 2;
 			}
 		}
-		System.out.println("Total Upload: " + totalUploadSize/1024/1024 + "Mb");
+		log.debug("Total Upload: " + totalUploadSize/1024/1024 + "Mb");
 	}
 	
 	private void executeUploadTest(long size, MyIOHAndler io) throws IOException {
-		System.out.println("Upload Test...");
+		log.trace("Upload Test...");
 		this.results.setUploadSize(size);
 		io.write("U", true);
 		io.write(size, true);
@@ -167,7 +193,7 @@ public class ServerTestRunner implements Runnable {
 	}
 	
 	private void executePingTest(MyIOHAndler io) throws IOException {
-		System.out.println("Ping Test...");
+		log.trace("Ping Test...");
 		io.write("P", true);
 		io.write(io.read(false), false);
 		this.results.setPingDuration(io.readInt(true));
