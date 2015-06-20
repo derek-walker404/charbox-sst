@@ -7,9 +7,7 @@
 	<name>Charbox - SST</name>
 	<properties>
 		<dropwizard.version>0.7.1</dropwizard.version>
-		<tpofof-core.version>0.0.3-SNAPSHOT</tpofof-core.version>
-		<charbox-domain.version>0.1.0-SNAPSHOT</charbox-domain.version>
-		<charbox-client.version>0.1.0-SNAPSHOT</charbox-client.version>
+		<charbox-client.version>0.1.1-SNAPSHOT</charbox-client.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -19,23 +17,8 @@
 		</dependency>
 		<dependency>
 			<groupId>co.charbox</groupId>
-			<artifactId>domain</artifactId>
-			<version>${charbox-domain.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>co.charbox</groupId>
 			<artifactId>charbox-client</artifactId>
 			<version>${charbox-client.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.tpofof</groupId>
-			<artifactId>tpofof-core</artifactId>
-			<version>${tpofof-core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>co.charbox</groupId>
-			<artifactId>core</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>

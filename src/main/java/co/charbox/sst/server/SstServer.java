@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 import co.charbox.client.sst.results.SstResultsHandler;
 
-import com.google.api.client.util.Lists;
 import com.google.api.client.util.Maps;
 import com.tpofof.core.App;
 import com.tpofof.core.utils.Config;
