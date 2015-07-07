@@ -1,6 +1,7 @@
 package co.charbox.sst.server;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import co.charbox.domain.model.SstResults;
+import co.charbox.domain.model.SstResultsModel;
 
 import com.tpofof.core.utils.AuthorizationHeader;
 import com.tpofof.core.utils.Config;
@@ -33,7 +34,7 @@ public class SstChartbotApiClient {
 		return config.getString("charbot.api.uri", "http://localhost:8080");
 	}
 	
-	public boolean validateDeviceToken(String deviceId, String deviceToken, String serviceId) {
+	public boolean validateDeviceToken(Serializable deviceId, String deviceToken, String serviceId) {
 		GetMethod get = new GetMethod(baseUrl() + "/auth/validate/token");
 		get.addRequestHeader(new AuthorizationHeader(deviceId, deviceToken, serviceId));
 		try {
@@ -58,7 +59,7 @@ public class SstChartbotApiClient {
 	 * @param deviceToken
 	 * @return
 	 */
-	public boolean validateDeviceToken(String deviceId, String deviceToken, String serviceId, int retryCount) {
+	public boolean validateDeviceToken(Serializable deviceId, String deviceToken, String serviceId, int retryCount) {
 		for (int i=0;i<retryCount;i++) {
 			if (validateDeviceToken(deviceId, deviceToken, serviceId)) {
 				return true;
@@ -72,7 +73,7 @@ public class SstChartbotApiClient {
 		return false;
 	}
 	
-	public boolean postSstResult(SstResults results) {
+	public boolean postSstResult(SstResultsModel results) {
 		String serviceApiKey = config.getString("charbot.api.auth.key", "asdf123");
 		String serviceId = config.getString("charbot.api.auth.id", "test-sst-0");
 		PostMethod post = new PostMethod(baseUrl() + "/sst");

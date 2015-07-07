@@ -9,9 +9,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import co.charbox.domain.model.MyLocation;
 import co.charbox.domain.model.mm.ConnectionInfoModel;
-import co.charbox.domain.model.mm.MyCharboxLocation;
+import co.charbox.domain.model.mm.LocationModel;
+import co.charbox.domain.model.mm.SimpleLocationModel;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -58,13 +58,14 @@ public final class MaxMindConnectionDataProvider {
 		return info;
 	}
 
-	public MyLocation getCurrentServerLocation() {
+	public SimpleLocationModel getCurrentServerLocation() {
 		ConnectionInfoModel info = getConnectionInfo("self");
 		if (info != null) {
-			MyCharboxLocation loc = info.getLocation();
-			return MyLocation.builder()
+			LocationModel loc = info.getLocation();
+			return SimpleLocationModel.builder()
 					.ip(info.getConnection().getIp())
-					.location(loc.getLocation())
+					.lat(loc.getLat())
+					.lon(loc.getLon())
 					.build();
 		}
 		return null;

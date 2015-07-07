@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import co.charbox.client.sst.results.SstResultsHandler;
-import co.charbox.domain.model.SstResults;
+import co.charbox.domain.model.SstResultsModel;
 import co.charbox.sst.server.SstChartbotApiClient;
 
 @Component
@@ -17,7 +17,7 @@ public class CharbotDataApiSstResultsHandler implements SstResultsHandler {
 
 	@Autowired private SstChartbotApiClient charbotClient;
 	
-	public boolean handle(SstResults results, Socket client) {
+	public boolean handle(SstResultsModel results, Socket client) {
 		return charbotClient.postSstResult(results);
 	}
 
