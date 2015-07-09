@@ -108,7 +108,7 @@ public class ServerTestRunner implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		if (!charbotApiClient.validateDeviceToken(deviceId, deviceToken, "sst", 5)) {
+		if (!charbotApiClient.validateDeviceToken(deviceId, deviceToken, "sst")) {
 			log.error("Invalid token, closing socket...");
 			try {
 				client.close();

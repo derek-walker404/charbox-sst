@@ -51,28 +51,6 @@ public class SstChartbotApiClient {
 		return false;
 	}
 	
-	/**
-	 * Adding this method because Elasticsearch SUCKS as a primary data store... Fucking lame if you ask me... 
-	 * TODO: move to SQL
-	 * 
-	 * @param deviceId
-	 * @param deviceToken
-	 * @return
-	 */
-	public boolean validateDeviceToken(Serializable deviceId, String deviceToken, String serviceId, int retryCount) {
-		for (int i=0;i<retryCount;i++) {
-			if (validateDeviceToken(deviceId, deviceToken, serviceId)) {
-				return true;
-			}
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		return false;
-	}
-	
 	public boolean postSstResult(SstResultsModel results) {
 		String serviceApiKey = config.getString("charbot.api.auth.key", "asdf123");
 		String serviceId = config.getString("charbot.api.auth.id", "test-sst-0");
