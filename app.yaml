@@ -21,7 +21,7 @@ logging:
   # Logger-specific levels.
   loggers:
     # Overrides the level of com.example.dw.Thing and sets it to DEBUG.
-    "co.charbot": DEBUG
+    co.charbot: TRACE
   appenders:
     # Log info, warnings and errors to our apps' main log.
     # Rolled over daily and retained for 5 days.
