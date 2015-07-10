@@ -8,6 +8,6 @@ server:
 logging:
   level: INFO
   loggers:
-    co.charbot: DEBUG
+    co.charbot: TRACE
   appenders:
     - type: console
