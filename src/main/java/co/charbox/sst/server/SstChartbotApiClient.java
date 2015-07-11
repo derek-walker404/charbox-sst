@@ -31,7 +31,7 @@ public class SstChartbotApiClient {
 	@Autowired private JsonUtils json;
 	
 	protected String baseUrl() {
-		return config.getString("charbot.api.uri", "http://localhost:8080");
+		return config.getString("charbot.api.url", "http://localhost:8080");
 	}
 	
 	public boolean validateDeviceToken(Serializable deviceId, String deviceToken, String serviceId) {
