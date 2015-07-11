@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>co.charbox</groupId>
 	<artifactId>sst</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>Charbox - SST</name>
 	<properties>
 		<dropwizard.version>0.7.1</dropwizard.version>
-		<charbox-client.version>0.1.1-SNAPSHOT</charbox-client.version>
+		<charbox-sst-common.version>0.1.0-SNAPSHOT</charbox-sst-common.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -16,23 +16,9 @@
 			<version>${dropwizard.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>co.charbox</groupId>
-			<artifactId>charbox-client</artifactId>
-			<version>${charbox-client.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>co.charbot</groupId>
+			<artifactId>sst-common</artifactId>
+			<version>${charbox-sst-common.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
