@@ -12,11 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.joda.time.DateTime;
 
-import co.charbot.sst.InvalidDeviceTokenException;
-import co.charbot.sst.results.SstResultsHandler;
-import co.charbot.sst.utils.DataReceiver;
-import co.charbot.sst.utils.DataSender;
-import co.charbot.sst.utils.MyIOHAndler;
 import co.charbox.core.utils.SpeedUtils;
 import co.charbox.domain.model.DeviceModel;
 import co.charbox.domain.model.SstResultsModel;
@@ -24,6 +19,11 @@ import co.charbox.domain.model.mm.ConnectionInfoModel;
 import co.charbox.domain.model.mm.ConnectionModel;
 import co.charbox.domain.model.mm.SimpleLocationModel;
 import co.charbox.domain.properties.SSTProperties;
+import co.charbox.sst.InvalidDeviceTokenException;
+import co.charbox.sst.results.SstResultsHandler;
+import co.charbox.sst.utils.DataReceiver;
+import co.charbox.sst.utils.DataSender;
+import co.charbox.sst.utils.MyIOHAndler;
 
 @Slf4j
 @Builder

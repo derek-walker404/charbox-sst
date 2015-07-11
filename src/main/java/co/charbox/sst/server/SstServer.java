@@ -21,7 +21,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import co.charbot.sst.results.SstResultsHandler;
+import co.charbox.sst.results.SstResultsHandler;
 
 import com.google.api.client.util.Maps;
 import com.tpofof.core.App;

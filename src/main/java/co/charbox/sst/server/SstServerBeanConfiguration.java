@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import co.charbot.sst.results.ConsoleSstResultsHandler;
-import co.charbot.sst.results.SstResultsHandler;
+import co.charbox.sst.results.ConsoleSstResultsHandler;
+import co.charbox.sst.results.SstResultsHandler;
 import co.charbox.sst.server.results.CharbotDataApiSstResultsHandler;
 
 @Configuration
