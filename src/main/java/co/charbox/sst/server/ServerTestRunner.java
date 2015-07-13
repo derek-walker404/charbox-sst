@@ -167,8 +167,10 @@ public class ServerTestRunner implements Runnable {
 		while (this.results.getUploadDuration() < this.minSendTime) {
 			totalUploadSize += currSize;
 			if (!executeUploadTest(currSize, io)) {
+				log.warn("Error during upload test. Negative duration.");
 				continue;
 			}
+			log.debug("Upload Duration: " + this.results.getUploadDuration());
 			if (this.results.getUploadDuration() >= this.minSendTime) {
 				// TODO: do I need this?
 				double speed = this.results.getDownloadSpeed();
