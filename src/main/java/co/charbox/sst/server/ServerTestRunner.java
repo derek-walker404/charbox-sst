@@ -126,6 +126,7 @@ public class ServerTestRunner implements Runnable {
 		while (this.results.getDownloadDuration() < this.minSendTime) {
 			totalDownloadSize += currSize;
 			if (!executeDownloadTest(currSize, io)) {
+				log.warn("Error during download test. Negative duration. currSize: " + currSize);
 				continue;
 			}
 			if (this.results.getDownloadDuration() >= this.minSendTime) {
@@ -135,8 +136,6 @@ public class ServerTestRunner implements Runnable {
 				executeDownloadTest(currSize, io);
 				this.results.setDownloadSpeed(avg(this.results.getDownloadSpeed(), speed));
 				this.results.setDownloadDuration((int)avg(this.results.getDownloadDuration(), duration));
-//				this.results.setDownloadSpeed(this.results.getDownloadSpeed());
-//				this.results.setDownloadDuration(this.results.getDownloadDuration());
 				break;
 			} else {
 				currSize *= 2;
@@ -152,7 +151,8 @@ public class ServerTestRunner implements Runnable {
 		io.write(size, true);
 		new DataSender(io, SSTProperties.getDefaultDataChunk(), size).run();
 		int duration = io.readInt(true);
-		if (duration <= 0) {
+		if (duration < 0) {
+			log.error("negative duration: " + duration);
 			return false;
 		}
 		this.results.setDownloadDuration(duration);
@@ -167,7 +167,7 @@ public class ServerTestRunner implements Runnable {
 		while (this.results.getUploadDuration() < this.minSendTime) {
 			totalUploadSize += currSize;
 			if (!executeUploadTest(currSize, io)) {
-				log.warn("Error during upload test. Negative duration.");
+				log.warn("Error during upload test. Negative duration. currSize: " + currSize);
 				continue;
 			}
 			log.debug("Upload Duration: " + this.results.getUploadDuration());
@@ -178,8 +178,6 @@ public class ServerTestRunner implements Runnable {
 				executeUploadTest(currSize, io);
 				this.results.setUploadSpeed(avg(this.results.getUploadSpeed(), speed));
 				this.results.setUploadDuration((int)avg(this.results.getUploadDuration(), duration));
-//				this.results.setUploadSpeed(this.results.getUploadSpeed());
-//				this.results.setUploadDuration(this.results.getUploadDuration());
 				break;
 			} else {
 				currSize *= 2;
@@ -195,7 +193,8 @@ public class ServerTestRunner implements Runnable {
 		io.write(size, true);
 		DataReceiver dr = new DataReceiver(io, size);
 		dr.run();
-		if (dr.getDuration() <= 0) {
+		if (dr.getDuration() < 0) {
+			log.error("negative duration: " + dr.getDuration());
 			return false;
 		}
 		this.results.setUploadDuration(dr.getDuration());
