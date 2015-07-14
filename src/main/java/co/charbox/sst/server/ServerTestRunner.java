@@ -55,7 +55,7 @@ public class ServerTestRunner implements Runnable {
 	public void run() {
 		expirationDate = new DateTime().plusMillis(maxExecutionTime);
 		try {
-			MyIOHAndler io = new MyIOHAndler(client, 4096);
+			MyIOHAndler io = new MyIOHAndler(client, 131072);
 			initResults(io);
 			
 			calculateDownloadSpeed(io);
@@ -170,7 +170,6 @@ public class ServerTestRunner implements Runnable {
 				log.warn("Error during upload test. Negative duration. currSize: " + currSize);
 				continue;
 			}
-			log.debug("Upload Duration: " + this.results.getUploadDuration());
 			if (this.results.getUploadDuration() >= this.minSendTime) {
 				// TODO: do I need this?
 				double speed = this.results.getDownloadSpeed();

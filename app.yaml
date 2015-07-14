@@ -6,7 +6,7 @@ server:
     - type: http
       port: 9001
 logging:
-  level: INFO
+  level: DEBUG
   loggers:
     co.charbot: TRACE
   appenders:
