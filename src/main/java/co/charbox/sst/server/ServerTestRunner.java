@@ -151,7 +151,7 @@ public class ServerTestRunner implements Runnable {
 		io.write(size, true);
 		new DataSender(io, SSTProperties.getDefaultDataChunk(), size).run();
 		int duration = io.readInt(true) - results.getPingDuration();
-		if (duration < 0) {
+		if (duration == -1) {
 			log.error("negative duration: " + duration);
 			return false;
 		}
@@ -193,7 +193,7 @@ public class ServerTestRunner implements Runnable {
 		DataReceiver dr = new DataReceiver(io, size);
 		dr.run();
 		int duration = dr.getDuration() - results.getPingDuration();
-		if (duration < 0) {
+		if (duration == -1) {
 			log.error("negative duration: " + duration);
 			return false;
 		}
