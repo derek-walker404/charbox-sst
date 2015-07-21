@@ -19,7 +19,6 @@ import co.charbox.domain.model.mm.ConnectionInfoModel;
 import co.charbox.domain.model.mm.ConnectionModel;
 import co.charbox.domain.model.mm.SimpleLocationModel;
 import co.charbox.sst.InvalidDeviceTokenException;
-import co.charbox.sst.SSTProperties;
 import co.charbox.sst.results.SstResultsHandler;
 import co.charbox.sst.utils.DataReceiver;
 import co.charbox.sst.utils.DataSender;
@@ -149,7 +148,7 @@ public class ServerTestRunner implements Runnable {
 		this.results.setDownloadSize(size);
 		io.write("D", true);
 		io.write(size, true);
-		new DataSender(io, SSTProperties.getDefaultDataChunk(), size).run();
+		new DataSender(io, size).run();
 		int duration = io.readInt(true) - results.getPingDuration();
 		if (duration == -1) {
 			log.error("negative duration: " + duration);
